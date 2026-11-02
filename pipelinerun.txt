@@ -1,0 +1,142 @@
+========== PIPELINE RUN ==========
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    chains.tekton.dev/signed: "true"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tekton.dev/v1","kind":"PipelineRun","metadata":{"annotations":{},"name":"cd-pipeline-run-20261102","namespace":"sn-labs-ayushpathak5"},"spec":{"params":[{"name":"repo-url","value":"https://github.com/officialayush23/devops-capstone-project"},{"name":"branch","value":"main"}],"pipelineRef":{"name":"cd-pipeline"},"taskRunTemplate":{"serviceAccountName":"pipeline"},"timeouts":{"pipeline":"30m"},"workspaces":[{"name":"pipeline-workspace","persistentVolumeClaim":{"claimName":"pipelinerun-pvc"}}]}}
+  creationTimestamp: "2026-11-02T11:54:08Z"
+  finalizers:
+  - chains.tekton.dev/pipelinerun
+  generation: 1
+  labels:
+    tekton.dev/pipeline: cd-pipeline
+  name: cd-pipeline-run-20261102
+  namespace: sn-labs-ayushpathak5
+  resourceVersion: "3114725823"
+  uid: 3cba1788-3f34-49fc-8628-42d1d8f4abbb
+spec:
+  params:
+  - name: repo-url
+    value: https://github.com/officialayush23/devops-capstone-project
+  - name: branch
+    value: main
+  pipelineRef:
+    name: cd-pipeline
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 30m0s
+  workspaces:
+  - name: pipeline-workspace
+    persistentVolumeClaim:
+      claimName: pipelinerun-pvc
+status:
+  childReferences:
+  - apiVersion: tekton.dev/v1
+    kind: TaskRun
+    name: cd-pipeline-run-20261102-init
+    pipelineTaskName: init
+  - apiVersion: tekton.dev/v1
+    kind: TaskRun
+    name: cd-pipeline-run-20261102-clone
+    pipelineTaskName: clone
+  - apiVersion: tekton.dev/v1
+    kind: TaskRun
+    name: cd-pipeline-run-20261102-lint
+    pipelineTaskName: lint
+  - apiVersion: tekton.dev/v1
+    kind: TaskRun
+    name: cd-pipeline-run-20261102-test
+    pipelineTaskName: test
+  completionTime: "2026-11-02T11:55:55Z"
+  conditions:
+  - lastTransitionTime: "2026-11-02T11:55:55Z"
+    message: 'Tasks Completed: 4 (Failed: 0, Cancelled 0), Skipped: 0'
+    reason: Succeeded
+    status: "True"
+    type: Succeeded
+  pipelineSpec:
+    params:
+    - name: repo-url
+      type: string
+    - default: main
+      name: branch
+      type: string
+    tasks:
+    - name: init
+      taskRef:
+        kind: Task
+        name: cleanup
+      workspaces:
+      - name: source
+        workspace: pipeline-workspace
+    - name: clone
+      params:
+      - name: url
+        value: https://github.com/officialayush23/devops-capstone-project
+      - name: revision
+        value: main
+      runAfter:
+      - init
+      taskRef:
+        kind: Task
+        name: git-clone-local
+      workspaces:
+      - name: output
+        workspace: pipeline-workspace
+    - name: lint
+      runAfter:
+      - clone
+      taskRef:
+        kind: Task
+        name: flake8-local
+      workspaces:
+      - name: source
+        workspace: pipeline-workspace
+    - name: test
+      runAfter:
+      - lint
+      taskRef:
+        kind: Task
+        name: test-local
+      workspaces:
+      - name: source
+        workspace: pipeline-workspace
+    workspaces:
+    - name: pipeline-workspace
+  startTime: "2026-11-02T11:54:08Z"
+========== TASKRUN STATUS ==========
+NAME                             SUCCEEDED   REASON      STARTTIME   COMPLETIONTIME
+cd-pipeline-run-20261102-clone   True        Succeeded   10m         9m39s
+cd-pipeline-run-20261102-init    True        Succeeded   10m         10m
+cd-pipeline-run-20261102-lint    True        Succeeded   9m39s       9m23s
+cd-pipeline-run-20261102-test    True        Succeeded   9m22s       8m27s
+========== TASK LOGS ==========
+[pod/cd-pipeline-run-20261102-clone-pod/place-scripts] 2026/11/02 11:54:24 Decoded script /tekton/scripts/script-0-qbsrg
+[pod/cd-pipeline-run-20261102-test-pod/place-scripts] 2026/11/02 11:55:03 Decoded script /tekton/scripts/script-0-qjhhj
+[pod/cd-pipeline-run-20261102-clone-pod/prepare] 2026/11/02 11:54:23 Entrypoint initialization
+[pod/cd-pipeline-run-20261102-lint-pod/place-scripts] 2026/11/02 11:54:47 Decoded script /tekton/scripts/script-0-dmbs5
+[pod/cd-pipeline-run-20261102-test-pod/step-test] ok
+[pod/cd-pipeline-run-20261102-test-pod/step-test] PUT /accounts/<id> should update an Account. ... ok
+[pod/cd-pipeline-run-20261102-test-pod/step-test] PUT /accounts/<id> should return 404 for a missing Account. ... ok
+[pod/cd-pipeline-run-20261102-test-pod/step-test] 
+[pod/cd-pipeline-run-20261102-test-pod/step-test] ----------------------------------------------------------------------
+[pod/cd-pipeline-run-20261102-test-pod/step-test] Ran 27 tests in 2.105s
+[pod/cd-pipeline-run-20261102-test-pod/step-test] 
+[pod/cd-pipeline-run-20261102-test-pod/step-test] OK
+[pod/cd-pipeline-run-20261102-test-pod/prepare] 2026/11/02 11:55:01 Entrypoint initialization
+[pod/cd-pipeline-run-20261102-clone-pod/step-clone] Updating files:  75% (24/32)Updating files:  78% (25/32)Updating files:  81% (26/32)Updating files:  84% (27/32)Updating files:  87% (28/32)Updating files:  90% (29/32)Updating files:  93% (30/32)Updating files:  96% (31/32)Updating files: 100% (32/32)Updating files: 100% (32/32), done.
+[pod/cd-pipeline-run-20261102-init-pod/prepare] 2026/11/02 11:54:11 Entrypoint initialization
+[pod/cd-pipeline-run-20261102-init-pod/place-scripts] 2026/11/02 11:54:13 Decoded script /tekton/scripts/script-0-6fm7r
+[pod/cd-pipeline-run-20261102-lint-pod/prepare] 2026/11/02 11:54:45 Entrypoint initialization
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint]   Downloading pycodestyle-2.8.0-py2.py3-none-any.whl (42 kB)
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint]      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.1/42.1 kB 100.0 MB/s eta 0:00:00
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] Installing collected packages: mccabe, pyflakes, pycodestyle, flake8
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] Successfully installed flake8-4.0.1 mccabe-0.6.1 pycodestyle-2.8.0 pyflakes-2.4.0
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] 
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] [notice] A new release of pip is available: 23.0.1 -> 26.0.1
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] [notice] To update, run: pip install --upgrade pip
+[pod/cd-pipeline-run-20261102-lint-pod/step-lint] 0

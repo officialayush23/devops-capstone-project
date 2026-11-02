@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts
+  namespace: sn-labs-ayushpathak5
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: accounts
+  template:
+    metadata:
+      labels:
+        app: accounts
+    spec:
+      imagePullSecrets:
+        - name: icr
+      containers:
+        - name: accounts
+          image: us.icr.io/sn-labs-ayushpathak5/accounts:1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DATABASE_URI
+              value: postgresql://postgres:postgres@postgresql:5432/postgres
+            - name: SECRET_KEY
+              value: accounts-kubernetes-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounts
+  namespace: sn-labs-ayushpathak5
+spec:
+  selector:
+    app: accounts
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

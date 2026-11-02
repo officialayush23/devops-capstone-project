@@ -1,0 +1,8 @@
+venv/
+.git/
+.github/
+.coverage
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.log
